@@ -1,0 +1,96 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+/*THEME*/
+@import '../../../../vendor/filafly/brisk/resources/css/theme.css';
+
+/*COLORES PALLET*/
+@source '../../../../vendor/awcodes/palette/resources/**/*.blade.php';
+
+@source '../../../../vendor/jaocero/radio-deck/resources/views/**/*'
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/*.fi-user-menu{*/
+/*    display: none !important;*/
+/*}*/
+
+.fi-sidebar-item-label {
+    font-size: var(--text-lg);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn > .fi-sidebar-item-label {
+    color: var(--primary-700);
+}
+
+.fi-sidebar-item-btn {
+    padding: calc(var(--spacing) * 3) !important;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+    background-color: var(--color-primary-100) !important;
+}
+
+.fi-sidebar.fi-main-sidebar {
+    border-right-color: #a1a1aa4d !important;
+    border-right: 1px;
+    border-style: solid;
+}
+
+.compact-table .fi-ta-text {
+    @apply py-1;
+}
+
+.compact-table .fi-ta-cell.px-3.py-4, .compact-table .fi-ta-cell .whitespace-nowrap.px-3.py-4 {
+    @apply py-1;
+}
+
+
+.icon-custom {
+    width: auto !important;
+    background-color: #f4f4f4 !important;
+    padding-block: calc(var(--spacing) * 3) !important;
+    border-radius: var(--radius-lg) !important;
+}
+
+
+.user-log-custom {
+    flex-wrap: wrap;
+}
+
+.user-log-custom img {
+
+}
+
+.stat-bg-primary {
+    background-color: var(--color-primary-500);
+}
+
+.stat-bg-primary .fi-wi-stats-overview-stat-label {
+    color: var(--color-white)
+}
+
+.stat-bg-primary .fi-wi-stats-overview-stat-value {
+    color: var(--color-white);
+    font-size: var(--text-4xl);
+}
+
+.list-icon-category .place-items-start {
+    display: none !important;
+}
+
+
+.category-row-default {
+    background-color: var(--color-slate-50);
+}
+
+/*.list-transactions-custom table thead {*/
+/*    display: none;*/
+
+/*}*/
+
+/*Resolve ditor de imagem*/
+.fi-fo-file-upload-editor .fi-fo-file-upload-editor-window{
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+}
