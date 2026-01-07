@@ -39,6 +39,8 @@ class InvoiceResource extends Resource
         return __('custom.title.invoices');
     }
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Schema $schema): Schema
     {
         return InvoiceForm::configure($schema);

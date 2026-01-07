@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\FamilyStatusEnum;
+use App\Enums\RoleUserEnum;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -48,7 +49,16 @@ class Family extends Model
         return $this->belongsToMany(User::class)
             ->using(FamilyUser::class)
             ->withPivot('id', 'role')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->wherePivot('role', '!=', RoleUserEnum::ROLE_SUPER_ADMIN->value);
+    }
+
+    public function admins(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'family_user')
+            ->using(FamilyUser::class) // Indica que você usa a classe pivot customizada
+            ->withPivot('id', 'role')       // Garante acesso à coluna role
+            ->wherePivot('role', RoleUserEnum::ROLE_ADMIN->value);
     }
 
 }

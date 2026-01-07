@@ -17,17 +17,11 @@ enum UserStatusEnum: string implements HasLabel, HasColor
 
     public function getLabel(): ?string
     {
-        return match ($this) {
-            self::ACTIVE => 'Ativo',
-            self::INACTIVE => 'Inativo',
-        };
+        return StatusGeralEnum::from($this->value)->getLabel();
     }
 
     public function getColor(): string|array|null
     {
-        return match ($this) {
-            self::ACTIVE => Color::Green,
-            self::INACTIVE => Color::Red,
-        };
+        return StatusGeralEnum::from($this->value)->getColor();
     }
 }

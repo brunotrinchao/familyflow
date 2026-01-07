@@ -25,6 +25,8 @@ class ManageInstallments extends ManageRecords
 
     protected static string $resource = InstallmentResource::class;
 
+    protected ?string $subheading = 'Receitas, Despesas e Transferências';
+
 
     protected function getHeaderActions(): array
     {
@@ -180,6 +182,7 @@ class ManageInstallments extends ManageRecords
             $installment->category = $transaction->category;
             $installment->type = $transaction->type;
             $installment->paymentSource = $transaction->source;
+            $installment->destination_account_id = $transaction->destination_account_id;
             $installment->is_invoice = false;
             return $installment;
         });
@@ -189,7 +192,6 @@ class ManageInstallments extends ManageRecords
             ->merge($installments->toBase())
             ->sortBy(fn ($record) => $record->due_date) // Ordena por data
             ->values();
-
         return $finalRecords;
 
     }

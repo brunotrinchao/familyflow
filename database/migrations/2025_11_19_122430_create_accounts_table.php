@@ -23,6 +23,11 @@ return new class extends Migration
             $table->foreignIdFor(Brand::class)->constrained();
             $table->integer('balance')->default(0);
             $table->timestamps();
+
+            // Índices
+            $table->index('family_user_id');
+            $table->index('brand_id');
+            $table->index(['family_user_id', 'brand_id']);
         });
     }
 

@@ -94,3 +94,20 @@
     top: 0 !important;
     left: 0 !important;
 }
+
+.widget-stats{
+    border-left-width: 3px;
+}
+
+.widget-stats.widget-stats-success{
+    border-color: var(--success-700);
+}
+
+.widget-stats.widget-stats-danger{
+    border-color: var(--danger-700);
+
+}
+
+.widget-stats.widget-stats-primary{
+    border-color: var(--primary-700);
+}

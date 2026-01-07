@@ -37,6 +37,22 @@ return new class extends Migration
             $table->enum('status', array_column(\App\Enums\TransactionStatusEnum::cases(), 'value'))->default(\App\Enums\TransactionStatusEnum::PENDING);
 
             $table->timestamps();
+
+            // Índices simples
+            $table->index('family_id');
+            $table->index('transaction_id');
+            $table->index('invoice_id');
+            $table->index('account_id');
+            $table->index('due_date');
+            $table->index('status');
+            $table->index('number');
+
+            // Índices compostos para queries comuns
+            $table->index(['transaction_id', 'number']);
+            $table->index(['invoice_id', 'status']);
+            $table->index(['due_date', 'status']);
+            $table->index(['family_id', 'due_date']);
+            $table->index(['family_id', 'status']);
         });
     }
 

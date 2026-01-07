@@ -8,6 +8,7 @@ use App\Enums\TransactionSourceEnum;
 use App\Enums\TransactionStatusEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Actions\InstallmentActions;
+use App\Filament\Resources\Installments\Schemas\InstallmentTable;
 use App\Filament\Resources\Installments\Utilities\InstallmentSummaries;
 use App\Filament\Resources\Transactions\Schemas\TransactionFormChoice;
 use App\Filament\Resources\Transactions\Schemas\TransactionFormModal;
@@ -148,13 +149,11 @@ class InstallmentsTable
                         if (!empty($data['invoice_date'])) {
                             $dateString = trim($data['invoice_date']);
 
-                            Carbon::setLocale('pt_BR');
-
                             $carbonDate = Carbon::parse($dateString);
 
-                            $periodoFormatado = $carbonDate->format('F \d\e Y');
+                            $periodoFormatado = $carbonDate->translatedFormat('F \d\e Y');
 
-                            $indicators[] = Indicator::make('Período: ' . $periodoFormatado)
+                            $indicators[] = Indicator::make('Período: ' . mb_ucfirst($periodoFormatado))
                                 ->removable(false);
                         }
 
@@ -218,137 +217,14 @@ class InstallmentsTable
 
     public static function getListTableColumns(): array
     {
-        return [
-            TextColumn::make('due_date')
-                ->label('')
-                ->date('d')
-                ->size(TextSize::Large)
-                ->toggleable(false),
-            ViewColumn::make('icon')
-                ->label('')
-                ->view('components.category-icon-view')
-                ->viewData(function (mixed $record) {
-                    $isInvoice = $record->is_invoice ?? false;
-                    if ($isInvoice) {
-                        $category = Category::where('icon', CategoryIconEnum::Notes)->first();
-                    } else {
-                        $category = $record->transaction->category;
-                    }
-                    return [
-                        'data' => $category
-                    ];
-                }),
-            TextColumn::make('title')
-                ->label('')
-                ->description(fn ($record) => $record->description ?? ''),
-            TextColumn::make('source')
-                ->label('')
-                ->getStateUsing(function (mixed $record): HtmlString {
-
-                    $brandName = $record->source->name ?? 'Desconhecido';
-
-                    $imageUrl = asset('storage/' . $record->source->icon_path);
-
-                    $renderedHtml = view('components.source-icon-view', [
-                        'image'  => $imageUrl,
-                        'brand'  => $brandName,
-                        'source' => $record->paymentSource,
-                    ])->render();
-
-                    return new HtmlString(Blade::render($renderedHtml));
-                }),
-            TextColumn::make('amount_cents')
-                ->label('')
-                ->money('BRL')
-                ->color(fn (Model $record) => $record->amount > 0 ? Color::Green : Color::Gray)
-                ->getStateUsing(function (mixed $record): string {
-                    return MaskHelper::covertIntToReal($record->amount);
-                })
-                ->summarize(InstallmentSummaries::getSummarizers()),
-            TextColumn::make('status')
-                ->label('')
-                ->badge()
-        ];
+        return InstallmentTable::configure();
     }
 
     // Define the columns for the table when displayed in grid layout
     public static function getGridTableColumns(): array
     {
         return [
-            Stack::make([
-                TextColumn::make('due_date')
-                    ->date('d')
-                    ->size(TextSize::Large),
-                ViewColumn::make('icon')
-                    ->label('')
-                    ->view('components.category-icon-view')
-                    ->viewData(function (mixed $record) {
-                        $isInvoice = $record->is_invoice ?? false;
-                        $catIcon = $isInvoice ? CategoryIconEnum::Notes : $record->transaction->category;
-                        return [
-                            'data' => $catIcon
-                        ];
-                    }),
-                //                IconColumn::make('ico')
-                //                    ->label('')
-                //                    ->color(function (mixed $record) {
-                //                        $isInvoice = $record->is_invoice ?? false;
-                //                        return $isInvoice ? Color::Gray : Color::hex($record->transaction->category->color->value);
-                //                    })
-                //                    ->getStateUsing(function (mixed $record) {
-                //
-                //                        $isInvoice = $record->is_invoice;
-                //                        return $isInvoice ? CategoryIconEnum::Notes : $record->transaction->category->icon;
-                //                    })
-                //                    ->alignCenter()
-                //                    ->extraAttributes(function (mixed $record): array {
-                //                        $isInvoice = $record->is_invoice ?? false;
-                //                        $colorSource = $record->transaction->category->color->value ?? "#000000";
-                //
-                //                        $colorHex = $isInvoice ? Color::Gray[300] : Color::generatePalette($colorSource)[200];
-                //
-                //                        return [
-                //                            'style' => "background-color: {$colorHex}; display: inline-flex;
-                //                                        align-items: center;
-                //                                        justify-content: center;
-                //                                        padding: 6px 9px !important;
-                //                                        border-radius: 50%; /* Torna-o circular */
-                //                                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
-                //                                        flex-shrink: 0;
-                //                                        color: #ffffff;
-                //                                        width: 40px;
-                //                                        height: 40px;"
-                //                        ];
-                //                    }),
-                TextColumn::make('description')
-                    ->label(''),
-                TextColumn::make('source')
-                    ->label('')
-                    ->getStateUsing(function (mixed $record): HtmlString {
-
-                        $brandName = $record->source->name ?? 'Desconhecido';
-
-                        $imageUrl = asset('storage/' . $record->source->icon_path);
-
-                        $renderedHtml = view('components.source-icon-view', [
-                            'image' => $imageUrl,
-                            'brand' => $brandName
-                        ])->render();
-
-                        return new HtmlString(Blade::render($renderedHtml));
-                    }),
-                TextColumn::make('amount_cents')
-                    ->label('')
-                    ->money('BRL')
-                    ->color(fn (Model $record) => $record->amount > 0 ? Color::Green : Color::Gray)
-                    ->getStateUsing(function (mixed $record): string {
-                        return MaskHelper::covertIntToReal($record->amount);
-                    })
-                    ->summarize(InstallmentSummaries::getSummarizers()),
-                TextColumn::make('status')
-                    ->label('')
-                    ->badge()
-            ])
+            Stack::make(InstallmentTable::configure())
                 ->
                 space(3)->extraAttributes([
                     'class' => 'pb-2',

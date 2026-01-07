@@ -24,7 +24,14 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            // Unique constraint
             $table->unique(['name', 'family_id', 'type']);
+
+            // Índices
+            $table->index('family_id');
+            $table->index('type');
+            $table->index(['family_id', 'type']);
+            $table->index('deleted_at');
         });
     }
 

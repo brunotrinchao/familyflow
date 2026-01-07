@@ -18,25 +18,16 @@ enum StatusEnum: string implements HasLabel, HasColor, HasIcon
 
     public function getLabel(): ?string
     {
-        return match ($this) {
-            self::ACTIVE => 'Ativo',
-            self::INACTIVE => 'Inativo',
-        };
+        return StatusGeralEnum::from($this->value)->getLabel();
     }
 
     public function getColor(): string|array|null
     {
-        return match ($this) {
-            self::ACTIVE => Color::Green,
-            self::INACTIVE => Color::Red,
-        };
+       return StatusGeralEnum::from($this->value)->getColor();
     }
 
     public function getIcon(): string|BackedEnum|null
     {
-        return match ($this) {
-            self::ACTIVE => Iconoir::CheckCircleSolid,
-            self::INACTIVE => Iconoir::MinusCircleSolid,
-        };
+        return StatusGeralEnum::from($this->value)->getIcon();
     }
 }

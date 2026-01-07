@@ -12,6 +12,7 @@ use App\Filament\Resources\CreditCards\Schemas\CreditCardInfolist;
 use App\Filament\Resources\CreditCards\Tables\CreditCardsTable;
 use App\Models\CreditCard;
 use BackedEnum;
+use Filafly\Icons\Iconoir\Enums\Iconoir;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +24,7 @@ class CreditCardResource extends Resource
 {
     protected static ?string $model = CreditCard::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Iconoir::CreditCard;
 
     public static function getModelLabel(): string
     {
@@ -40,10 +41,12 @@ class CreditCardResource extends Resource
         return __('custom.title.credit_cards');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('custom.title.settings');
-    }
+//    public static function getNavigationGroup(): string|UnitEnum|null
+//    {
+//        return __('custom.title.settings');
+//    }
+
+    protected static ?int $navigationSort = 4;
 
     public static function getGloballySearchableAttributes(): array
     {
@@ -60,8 +63,6 @@ class CreditCardResource extends Resource
             'Conta'  => $record->account->name
         ];
     }
-
-    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

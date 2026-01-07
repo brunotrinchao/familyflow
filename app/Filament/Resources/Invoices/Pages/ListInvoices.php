@@ -16,4 +16,6 @@ class ListInvoices extends ListRecords
 //            CreateAction::make(),
         ];
     }
+
+    protected ?string $subheading = "Faturas do cartão de crédito";
 }

@@ -47,13 +47,13 @@ class AccountResource extends Resource
         return __('custom.title.accounts');
     }
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
 
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('custom.title.settings');
-    }
+//    public static function getNavigationGroup(): string|UnitEnum|null
+//    {
+//        return __('custom.title.settings');
+//    }
 
     public static function getGloballySearchableAttributes(): array
     {

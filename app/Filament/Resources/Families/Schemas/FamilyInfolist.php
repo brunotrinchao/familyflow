@@ -39,16 +39,15 @@ class FamilyInfolist
                                 ])
                                     ->columns(3)
                             ])
-                        ->columnSpan(5),
+                            ->columnSpan(5),
                         Section::make('infolist')
                             ->heading('')
                             ->schema([
                                 Grid::make()->schema([
                                     TextEntry::make('admin')
                                         ->label('Admin')
-                                        ->getStateUsing(function (): string {
-                                            $familyUser = FamilyUser::where('role', RoleUserEnum::ROLE_ADMIN->value)->first();
-                                            return $familyUser->user->name ?? '-';
+                                        ->getStateUsing(function ($record): string {
+                                            return $record?->admins->first()?->name ?? 'Sem Administrador';
                                         })
                                         ->badge()
                                         ->color(Color::Green),
@@ -59,21 +58,21 @@ class FamilyInfolist
                                         })
                                 ])
                             ])
-                        ->columnSpan(5),
+                            ->columnSpan(5),
                         Section::make('infolist')
                             ->heading('')
                             ->schema([
-                                    TextEntry::make('status')
-                                        ->label('Situação')
-                                        ->getStateUsing(function (): string {
-                                           $familyUser = FamilyUser::where('role', RoleUserEnum::ROLE_ADMIN->value)->first();
-                                            return $familyUser->user->name ?? '-';
-                                        })
-                                        ->badge()
-                                        ->color(Color::Green),
+                                TextEntry::make('status')
+                                    ->label('Situação')
+                                    ->getStateUsing(function (): string {
+                                        $familyUser = FamilyUser::where('role', RoleUserEnum::ROLE_ADMIN->value)->first();
+                                        return $familyUser->user->name ?? '-';
+                                    })
+                                    ->badge()
+                                    ->color(Color::Green),
 
                             ])
-                        ->columnSpan(2),
+                            ->columnSpan(2),
                     ])
             ]);
     }

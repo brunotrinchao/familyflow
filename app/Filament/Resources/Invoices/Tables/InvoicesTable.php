@@ -42,6 +42,8 @@ use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -79,24 +81,29 @@ class InvoicesTable
 
                         return new HtmlString(Blade::render($renderedHtml));
                     }),
-                //                TextColumn::make('creditCard.name')
-                //                ->label('Cartão'),
                 TextColumn::make('period_date')
                     ->label('')
                     ->getStateUsing(function (Model $record) {
                         $date = Carbon::parse($record->period_date);
-                        $monthYearLabel = Str::ucfirst($date->translatedFormat('F Y'));
+                        $monthYearLabel = Str::ucfirst($date->translatedFormat('F \d\e Y'));
                         return $monthYearLabel;
                     }),
                 TextColumn::make('total_amount')
                     ->label('')
                     ->money('BRL')
-                    ->color(fn (Model $record) => $record->total_amount > 0 ? Color::Green : Color::Gray)
+                    ->color(fn (Model $record) => MaskHelper::amountColor($record->total_amount))
                     ->getStateUsing(function (mixed $record): string {
                         return MaskHelper::covertIntToReal($record->total_amount);
-                    }),
+                    })
+                    ->summarize(
+                    [
+                        Sum::make()
+                            ->money('BRL', locale: 'pt_BR', divideBy: 100)
+                            ->label('Valor total'),
+                    ]),
                 TextColumn::make('status')
                     ->label('')
+                    ->icon(false)
                     ->badge()
             ])
             ->filters([
@@ -160,13 +167,11 @@ class InvoicesTable
                         if (!empty($data['period_date'])) {
                             $dateString = trim($data['period_date']);
 
-                            Carbon::setLocale('pt_BR');
-
                             $carbonDate = Carbon::parse($dateString);
 
-                            $periodoFormatado = $carbonDate->format('F \d\e Y');
+                            $periodoFormatado = $carbonDate->translatedFormat('F \d\e Y');
 
-                            $indicators[] = Indicator::make('Período: ' . $periodoFormatado)
+                            $indicators[] = Indicator::make('Período: ' . mb_ucfirst($periodoFormatado))
                                 ->removable(false);
                         }
 
@@ -188,10 +193,6 @@ class InvoicesTable
             ->deferFilters(false)
             ->filtersFormColumns(1)
             ->defaultSort('period_date')
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
             ->headerActions([
                 Action::make('import_invoice')
                     ->modalIcon(Iconoir::Sparks)

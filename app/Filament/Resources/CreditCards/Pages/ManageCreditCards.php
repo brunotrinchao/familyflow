@@ -14,6 +14,7 @@ class ManageCreditCards extends ManageRecords
     use HasToggleableTable;
 
     protected static string $resource = CreditCardResource::class;
+    protected ?string $subheading = "Gerencie seus cartões de crédito";
 
 //    protected function getHeaderActions(): array
 //    {

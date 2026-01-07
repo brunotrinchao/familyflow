@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Auth;
 
 class Category extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasFamily;
 
     protected $table = 'categories';
 
@@ -34,7 +34,7 @@ class Category extends Model
     {
         return [
             'icon'  => CategoryIconEnum::class,
-            'type'  => TransactionTypeEnum::class,
+            'type'  => CategoryTypeEnum::class,
             'color' => CategoryColorPaletteEnum::class
         ];
     }

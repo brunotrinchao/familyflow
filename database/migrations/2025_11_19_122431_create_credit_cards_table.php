@@ -38,6 +38,15 @@ return new class extends Migration
             $table->enum('status', array_column(\App\Enums\StatusEnum::cases(), 'value'))->default(\App\Enums\StatusEnum::ACTIVE);
 
             $table->timestamps();
+
+            // Índices
+            $table->index('family_user_id');
+            $table->index('brand_id');
+            $table->index('account_id');
+            $table->index('status');
+            $table->index(['family_user_id', 'status']);
+            $table->index('closing_day');
+            $table->index('due_day');
         });
     }
 

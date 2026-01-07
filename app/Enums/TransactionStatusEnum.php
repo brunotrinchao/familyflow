@@ -13,34 +13,28 @@ use Illuminate\Contracts\Support\Htmlable;
 
 enum TransactionStatusEnum: string implements HasLabel, HasColor, HasIcon
 {
-    case PENDING = 'Pending'; // PENDENTE - CRIADA MAS SEM AÇÂO - DEFAULT
-
-    case SCHEDULED = 'Scheduled'; // AGENDADA - DEBITO AUTOMATICO
-
-    case POSTED = 'Posted'; // POSTED - LANÇADA OU SEJA FOI CREDTADA NO CARTAO OU NA CONTA
-
-    case OVERDUE = 'Overdue'; // OVERDUE - ATRASADA - SO PODE SER PASSAR DE SCHEDULED -> OVERDUE
-
-    case CANCELLED = 'Cancelled'; // CANCELED - NAO PODE PASSAR DE POSTED -> CANCELLED
-
-    case CLEARED = 'Cleared'; // CANCELED - NAO PODE PASSAR DE POSTED -> CANCELLED
-
-    case PAID = 'Paid';
+    case PENDING    = 'pending';
+    case SCHEDULED  = 'scheduled';
+    case POSTED     = 'posted';
+    case OVERDUE    = 'overdue';
+    case CANCELLED  = 'cancelled';
+    case CLEARED    = 'cleared';
+    case PAID       = 'paid';
 
 
     public function getColor(): string|array|null
     {
-        return $this->resolveAccount()['color'];
+        return StatusGeralEnum::from($this->value)->getColor();
     }
 
     public function getIcon(): string|BackedEnum|null
     {
-        return $this->resolveAccount()['icon'];
+        return StatusGeralEnum::from($this->value)->getIcon();
     }
 
     public function getLabel(): string|Htmlable|null
     {
-        return $this->resolveAccount()['label'];
+        return StatusGeralEnum::from($this->value)->getLabel();
     }
 
     private function resolveAccount(): array

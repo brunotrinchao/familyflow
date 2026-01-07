@@ -1,13 +1,16 @@
 @php
     use Filament\Support\Colors\Color;
 
-        // Pegamos o valor HEX diretamente
-        $hexColor = Color::hex($data->color->value ?? $data->color);
+    if (!$data) {
+        return;
+    }
 
-        // O ícone pode ser passado como a string do valor do Enum
-        $icon = $data->icon->getIcon() ?? $data->icon;
+    $hexColor = Color::hex($data->color->value ?? $data->color);
 
-        $showLabel = $showLabel ?? false;
+    // O ícone pode ser passado como a string do valor do Enum
+    $icon = $data->icon->getIcon() ?? $data->icon;
+
+    $showLabel = $showLabel ?? false;
 @endphp
 
 <span

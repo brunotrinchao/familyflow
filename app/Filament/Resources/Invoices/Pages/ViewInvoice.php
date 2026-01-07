@@ -43,9 +43,11 @@ class ViewInvoice extends ViewRecord
         $iconName = $this->record->status->getIcon();
         $iconColor =  $this->record->status->getColor();
         $actualLabel = $this->record->status->getLabel();
+
         if ($iconName) {
             $iconName = $iconName->getIconForSize(IconSize::Medium); // ou o método que retorna a string 'heroicon-o-lock-open'
-            $color = $this->getColor()[$iconColor];
+
+            $color = $iconColor;
         }
 
         $brandName = $this->record->creditCard->name ?? 'Desconhecido';
@@ -61,7 +63,7 @@ class ViewInvoice extends ViewRecord
         return new HtmlString("
         <div class='flex items-center flex-wrap gap-3'>
             {$sourceHtml}
-            <div class='inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold' style='background-color: {$color[200]}; color: {$color[500]}'>
+            <div class='inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold' style='background-color: {$color[400]}; color: {$color[700]}'>
                 " . Blade::render("<x-filament::icon icon='{$iconName}' class='h-4 w-4' />") . "
                 <span>{$actualLabel}</span>
             </div>
@@ -69,12 +71,12 @@ class ViewInvoice extends ViewRecord
     ");
     }
 
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            InvoiceNavigationWidget::class,
-        ];
-    }
+//    protected function getHeaderWidgets(): array
+//    {
+//        return [
+//            InvoiceNavigationWidget::class,
+//        ];
+//    }
 
     protected function getHeaderActions(): array
     {

@@ -193,9 +193,6 @@ class TransactionFormModal
                             })
                     ]),
                 Grid::make(1)
-//                    ->visible(fn (Get $get): bool => // Verifica o campo de seleção unificada (ex: 'card_12' ou 'account_5')
-//                        Str::startsWith($get('source_custom'), 'account__')
-//                    )
                     ->schema([
                         Toggle::make('status')
                             ->label('Pago?')

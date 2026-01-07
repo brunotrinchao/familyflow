@@ -63,6 +63,12 @@ enum CategoryIconEnum: string implements HasIcons, HasIcon, ScalableIcon
 
     case ShoppingBag = Iconoir::ShoppingBag->value;
 
+    case Transfer = Iconoir::DataTransferBoth->value;
+
+    case TransferDown = Iconoir::ReceiveDollars->value;
+
+    case TransferUp = Iconoir::SendDollars->value;
+
 
     // ----------------------------------------------------------------------
     // Implementação das Interfaces Filament
@@ -102,7 +108,10 @@ enum CategoryIconEnum: string implements HasIcons, HasIcon, ScalableIcon
             self::Unknown => 'Não Classificado',
             self::Notes => 'Faturas',
             self::CrediCards => 'Saldo devedor',
-            self::ShoppingBag => 'Compra'
+            self::ShoppingBag => 'Compra',
+            self::Transfer => 'Transfência',
+            self::TransferUp => 'Recebe tranfeência',
+            self::TransferDown => 'Envia tranfeência',
         };
     }
 
@@ -181,15 +190,15 @@ enum CategoryIconEnum: string implements HasIcons, HasIcon, ScalableIcon
                 self::Pharmacy,
                 self::Clothing,
                 self::CreditCardPayment,
-                self::ShoppingBag
+                self::ShoppingBag,
             ],
             CategoryTypeEnum::INCOME->value  => [
                 self::Salary,
                 self::Bonus,
                 self::OtherIncome,
                 self::AssetSale,
-                self::Investments
-            ]
+                self::Investments,
+            ],
         ];
     }
 }

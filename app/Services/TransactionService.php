@@ -38,18 +38,61 @@ class TransactionService
 
             $transaction = Transaction::create($data);
 
-            match ($transaction->source) {
-                TransactionSourceEnum::ACCOUNT => $this->processAccountImpact($transaction),
-
-                TransactionSourceEnum::CREDIT_CARD => $this->processInstallments(
-                    $transaction,
-                    $data['invoice'] ?? null
-                ),
-
-                default => throw new \Exception("Fonte de transação desconhecida"),
-            };
+            if ($transaction->type === TransactionTypeEnum::TRANSFER) {
+                $this->processTransferImpact($transaction);
+            } else {
+                // Lógica normal de despesa/receita que você já tem
+                match ($transaction->source) {
+                    TransactionSourceEnum::ACCOUNT => $this->processAccountImpact($transaction),
+                    TransactionSourceEnum::CREDIT_CARD => $this->processInstallments($transaction, $data['invoice'] ?? null),
+                };
+            }
 
             return $transaction;
+        });
+    }
+
+    public function update(Transaction $transaction, array $data): Transaction
+    {
+        return DB::transaction(function () use ($transaction, $data) {
+
+            $this->revertFinancialImpact($transaction);
+            $transaction->fresh();
+
+
+            $rawAmount = abs($data['amount']);
+            $data['amount'] = -$rawAmount;
+
+
+            $transaction->update($data);
+            $transaction->installments()->delete();
+
+            $transaction->fresh();
+            if ($transaction->type === TransactionTypeEnum::TRANSFER) {
+                $this->processTransferImpact($transaction);
+            } else {
+                match ($transaction->source) {
+                    TransactionSourceEnum::ACCOUNT => $this->processAccountImpact($transaction),
+                    TransactionSourceEnum::CREDIT_CARD => $this->processInstallments($transaction, $data['invoice'] ?? null),
+                };
+            }
+            return $transaction->fresh();
+        });
+    }
+
+    public function delete(Transaction $transaction): bool
+    {
+        return DB::transaction(function () use ($transaction) {
+            // 1. Reverter saldos, limites e faturas
+            $this->revertFinancialImpact($transaction);
+
+            $transaction->fresh();
+
+            // 2. Remover as parcelas (Installments) primeiro por causa da chave estrangeira
+            $transaction->installments()->delete();
+
+            // 3. Deletar a transação principal
+            return $transaction->delete();
         });
     }
 
@@ -90,10 +133,48 @@ class TransactionService
         };
     }
 
+    private function processTransferImpact(Transaction $transaction): void
+    {
+        $transaction->update([
+            'title' => "Transferência de: {$transaction->account->name} para: {$transaction->destinationAccount->name}"
+        ]);
+
+        $transaction->refresh();
+
+        $familyId = $transaction->familyUser->family_id;
+        $amount = abs($transaction->amount);
+
+        // 1. Lançamento de SAÍDA (Origem)
+        Installment::create([
+            'number'         => 1,
+            'amount'         => -$amount,
+            // Negativo pois sai dinheiro
+            'due_date'       => $transaction->date,
+            'status'         => InstallmentStatusEnum::PAID,
+            'transaction_id' => $transaction->id,
+            'family_id'      => $familyId,
+            'account_id'     => $transaction->account_id
+        ]);
+
+        // 2. Lançamento de ENTRADA (Destino)
+        Installment::create([
+            'number'         => 1,
+            'amount'         => $amount,
+            // Positivo pois entra dinheiro
+            'due_date'       => $transaction->date,
+            'status'         => InstallmentStatusEnum::PAID,
+            'transaction_id' => $transaction->id,
+            'family_id'      => $familyId,
+            'account_id'     => $transaction->destination_account_id,
+        ]);
+
+        // 3. Atualização de Saldos Reais
+        $transaction->account->decrement('balance', $amount);
+        $transaction->destinationAccount()->increment('balance', $amount);
+    }
+
     private function handleTransfer(Transaction $transaction, Account $sourceAccount): void
     {
-
-
         if ($transaction->destination_account_id) {
             $sourceAccount->decrement('balance', $transaction->amount);
             Account::find($transaction->destination_account_id)->increment('balance', $transaction->amount);
@@ -152,5 +233,58 @@ class TransactionService
     private function getOrCreateInvoice(Transaction $transaction, Carbon $date): Invoice
     {
         return app(InvoicesService::class)->getInvoiceByDate($transaction->creditCard, $date);
+    }
+
+    private function revertFinancialImpact(Transaction $transaction): void
+    {
+        $amount = abs($transaction->amount);
+
+        // --- REVERSÃO DE CONTAS BANCÁRIAS (Saída, Entrada ou Transferência) ---
+        if ($transaction->source === TransactionSourceEnum::ACCOUNT) {
+            $validStatuses = [
+                TransactionStatusEnum::PAID,
+                TransactionStatusEnum::CLEARED
+            ];
+
+            if (in_array($transaction->status, $validStatuses)) {
+                match ($transaction->type) {
+                    TransactionTypeEnum::EXPENSE => $transaction->account->increment('balance', $amount),
+                    TransactionTypeEnum::INCOME => $transaction->account->decrement('balance', $amount),
+                    TransactionTypeEnum::TRANSFER => $this->revertTransferImpact($transaction, $amount),
+                };
+            }
+        }
+
+        // --- REVERSÃO DE CARTÃO DE CRÉDITO ---
+        if ($transaction->source === TransactionSourceEnum::CREDIT_CARD) {
+            $card = $transaction->creditCard;
+            if ($card) {
+                // Estorna o limite usado (diminui o 'used')
+                $card->decrement('used', $amount);
+            }
+
+            // Estorna o valor de cada parcela das faturas correspondentes
+            foreach ($transaction->installments as $installment) {
+                if ($installment->invoice_id) {
+                    // Remove o valor da parcela do total da fatura
+                    $installment->invoice->decrement('total_amount', abs($installment->amount));
+                }
+            }
+        }
+    }
+
+    private function revertTransferImpact(Transaction $transaction, int $amount): void
+    {
+
+        // Devolve o dinheiro para a conta de origem
+        $transaction->account->increment('balance', $amount);
+
+        // Retira o dinheiro da conta de destino
+        if ($transaction->destination_account_id) {
+            $destAccount = $transaction->destinationAccount;
+            if ($destAccount) {
+                $destAccount->decrement('balance', $amount);
+            }
+        }
     }
 }

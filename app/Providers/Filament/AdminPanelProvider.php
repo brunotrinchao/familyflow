@@ -56,19 +56,23 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->font('Exo')
             ->colors([
-                'primary' => Color::Blue[300],
-                'danger'  => Color::Red[300],
+                'primary' => Color::Blue[400],
+                'danger'  => Color::Red[400],
                 'gray'    => Color::Gray,
-                'info'    => Color::Sky[300],
-                'success' => Color::Green[300],
-                'warning' => Color::Yellow[300],
-                'stone'   => Color::Stone[300],
-                'purple'  => Color::Purple[300],
+                'info'    => Color::Sky[400],
+                'success' => Color::Green[400],
+                'warning' => Color::Yellow[400],
+                'stone'   => Color::Stone[400],
+                'purple'  => Color::Purple[400],
+                'cyan'    => Color::Cyan[400],
+                'violet'  => Color::Violet[400],
+                'indigo'  => Color::Indigo[400],
+                'slate'   => Color::Slate[400]
             ])
             ->profile(isSimple: true)
             ->defaultThemeMode(ThemeMode::Light)
             ->breadcrumbs(false)
-            ->maxContentWidth(Width::Full)
+
             ->simplePageMaxContentWidth(Width::Medium)
             ->sidebarCollapsibleOnDesktop()
             ->viteTheme('resources/css/filament/admin/theme.css')

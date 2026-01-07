@@ -25,6 +25,7 @@ class ListAccounts extends ListRecords
         ];
     }
 
+
     protected function getTableActions(): array
     {
         return [

@@ -21,9 +21,15 @@ return new class extends Migration
 
             $table->enum('status', array_column(\App\Enums\StatusEnum::cases(), 'value'))->default(\App\Enums\StatusEnum::ACTIVE);
 
+            $table->timestamps();
+
+            // Unique constraint
             $table->unique(['name', 'type']);
 
-            $table->timestamps();
+            // Índices
+            $table->index('type');
+            $table->index('status');
+            $table->index(['type', 'status']);
         });
     }
 

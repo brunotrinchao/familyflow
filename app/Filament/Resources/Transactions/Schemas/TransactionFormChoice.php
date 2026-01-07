@@ -8,6 +8,7 @@ use App\Enums\TransactionStatusEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Helpers\GeneralHelper;
 use App\Helpers\MaskHelper;
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Services\TransactionService;
 use Filament\Actions\Action;
@@ -80,9 +81,16 @@ class TransactionFormChoice
                         $sourceId
                     ] = GeneralHelper::parseSource($data['source_custom']);
 
+                    if($type == TransactionTypeEnum::TRANSFER){
+                        [$sourceDestine,$sourceDestineId] = GeneralHelper::parseSource($data['account_destine']);
+                        $data['destination_account_id'] = $sourceDestineId;
+
+                        $data['category_id'] = Category::where('icon', 'data-transfer-both')->first()->id;
+                    }
+
                     $data['type'] = $type;
                     $data['source'] = $source;
-                    $data['status'] = $data['status'] ? TransactionStatusEnum::PAID : TransactionStatusEnum::PENDING;
+                    $data['status'] = $type== TransactionTypeEnum::TRANSFER ? TransactionStatusEnum::PAID : TransactionStatusEnum::PENDING;
                     $data['amount'] = MaskHelper::covertStrToInt($data['amount']);
                     $data['installment_number'] = $data['is_recurring'] ? $data['installment_number'] : 1;
 
@@ -92,7 +100,7 @@ class TransactionFormChoice
                         default => throw new \Exception("Fonte de transação inválida"),
                     };
 
-                    unset($data['source_custom'], $data['is_recurring']);;
+                    unset($data['source_custom'], $data['is_recurring'], $data['account_destine']);
 
                     $result = app(TransactionService::class)->create($data);
                     self::validateTransactionResult($result);

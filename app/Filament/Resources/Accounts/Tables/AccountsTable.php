@@ -7,6 +7,7 @@ use App\Enums\BankEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Actions\SimpleActions;
 use App\Filament\Resources\Accounts\Schemas\AccountForm;
+use App\Filament\Resources\Accounts\Schemas\AccountTable;
 use App\Helpers\MaskHelper;
 use App\Models\Account;
 use App\Services\AccountService;
@@ -17,6 +18,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Size;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
@@ -27,6 +29,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class AccountsTable
 {
@@ -123,50 +126,14 @@ class AccountsTable
 
     public static function getListTableColumns(): array
     {
-        return [
-            ImageColumn::make('brand.icon_path')
-                ->label('Banco')
-                ->disk('public') // 🚨 CHAVE 1: Define o disco onde a imagem está salva
-                ->visibility('public')
-
-                ->width(30)
-                ->imageHeight(40)
-                ->circular(),
-            TextColumn::make('name')
-                ->label('Conta')
-                ->searchable(),
-            TextColumn::make('balance')
-                ->label('Saldo')
-                ->money('BRL')
-                ->summarize(Sum::make()->money('BRL', locale: 'pt_BR', divideBy: 100)->label('Saldo totdal'))
-            ->getStateUsing(function (mixed $record): string {
-                        return MaskHelper::covertIntToReal($record->balance);
-                    }),
-        ];
+        return AccountTable::configure();
     }
 
     // Define the columns for the table when displayed in grid layout
     public static function getGridTableColumns(): array
     {
         return [
-            Stack::make([
-                ImageColumn::make('brand.icon_path')
-                    ->label('Banco')
-                    ->disk('public') // 🚨 CHAVE 1: Define o disco onde a imagem está salva
-                    ->visibility('public')
-                    ->width(30)
-                    ->imageHeight(40)
-                    ->circular()
-                    ->alignCenter(),
-                TextColumn::make('name')
-                    ->label('Conta')
-                    ->searchable()
-                    ->alignCenter(),
-                TextColumn::make('balance')
-                    ->label('Tipo')
-                    ->money('BRL')
-                    ->alignCenter(),
-            ])
+            Stack::make(AccountTable::configure())
                 ->space(1)->extraAttributes([
                     'class' => 'pb-2',
                 ])

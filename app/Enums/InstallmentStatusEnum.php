@@ -11,42 +11,24 @@ use Filament\Support\Contracts\HasLabel;
 
 enum InstallmentStatusEnum: string implements HasLabel, HasColor, HasIcon
 {
-    case PENDING = 'Pending';
-    case POSTED = 'Posted';
-    case PAID = 'Paid';
-    case OVERDUE = 'Overdue';
-    case REFUNDED = 'Refunded';
+    case PENDING = 'pending';
+    case POSTED = 'posted';
+    case PAID = 'paid';
+    case OVERDUE = 'overdue';
+    case REFUNDED = 'refunded';
 
     public function getLabel(): ?string
     {
-        return match ($this) {
-            self::PENDING => 'Aguardando',
-            self::POSTED => 'Lançada',
-            self::PAID => 'Pago',
-            self::OVERDUE => 'Em Atraso',
-            self::REFUNDED => 'Estornado',
-        };
+        return StatusGeralEnum::from($this->value)->getLabel();
     }
 
     public function getColor(): string|array|null
     {
-        return match ($this) {
-            self::PENDING => 'warning',
-            self::POSTED => 'info',
-            self::PAID =>  'success',
-            self::OVERDUE => 'stone',
-            self::REFUNDED => 'purple',
-        };
+        return StatusGeralEnum::from($this->value)->getColor();
     }
 
     public function getIcon(): string|BackedEnum|null
     {
-        return match ($this) {
-            self::PENDING => Iconoir::Clock,
-            self::POSTED => Iconoir::Check,
-            self::PAID => Iconoir::DoubleCheck,
-            self::OVERDUE => Iconoir::CalendarXmark,
-            self::REFUNDED => Iconoir::MinusCircle,
-        };
+        return StatusGeralEnum::from($this->value)->getIcon();
     }
 }

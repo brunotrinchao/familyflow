@@ -20,14 +20,25 @@ return new class extends Migration {
             $table->string('slug')->unique();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('deleted_at');
         });
+
+
 
         Schema::create('family_user', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Family::class);
             $table->foreignIdFor(User::class);
-             $table->enum('role', array_column(RoleUserEnum::cases(), 'value'))->default(ProfileUserEnum::ROLE_MEMBER->value);
+             $table->enum('role', array_column(RoleUserEnum::cases(), 'value'))->default(RoleUserEnum::ROLE_MEMBER->value);
             $table->timestamps();
+
+            // Índices
+            $table->index('family_id');
+            $table->index('user_id');
+            $table->index('role');
+            $table->index(['family_id', 'user_id']);
+            $table->unique(['family_id', 'user_id']);
         });
     }
 

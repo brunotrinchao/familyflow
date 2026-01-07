@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Filament\Support\Colors\Color;
 use Filament\Support\RawJs;
 
 class MaskHelper
@@ -25,10 +26,11 @@ class MaskHelper
         );
     }
 
-    public static function covertIntToReal(int $value = 0, bool $prefix = true): string
+    public static function covertIntToReal(int $value = 0, bool $prefix = true, bool $signal = true): string
     {
-        $prefixStr = $prefix ? 'R$ ' : null;
-        return $prefixStr . number_format($value / 100, 2, ',', '.');
+        $signal = $value < 0 && $signal ? '-' : '';
+        $prefixStr = $prefix ? $signal.'R$ ' : null;
+        return $prefixStr . number_format(abs($value) / 100, 2, ',', '.');
     }
 
     public static function covertStrToInt(?string $value): int
@@ -49,5 +51,10 @@ class MaskHelper
         $value = intval(round((float)$cleanAmount * 100));
 
         return $value;
+    }
+
+    public static function amountColor(int $value): array
+    {
+        return $value > 0 ? Color::Green : Color::Red;
     }
 }

@@ -39,19 +39,39 @@ return [
     ],
 
     'type' => [
-        'current_account' => 'Conta corrente',
-        'savings_account' => 'Conta poupança',
+        // Tipos de Conta e Origem
+        'current_account' => 'Conta Corrente',
+        'savings_account' => 'Conta Poupança',
+        'account'         => 'Conta',
+        'credit_card'     => 'Cartão de Crédito',
+        // Tipos de Movimentação
         'expense'         => 'Despesa',
         'income'          => 'Receita',
         'transfer'        => 'Transferência',
-        'account'         => 'Conta',
-        'credit_card'     => 'Cartão de crédito',
+    ],
+    'status' => [
+
+        // Status de Transações e Parcelas
         'pending'         => 'Pendente',
         'posted'          => 'Lançado',
         'scheduled'       => 'Agendado',
         'overdue'         => 'Vencido',
         'canceled'        => 'Cancelado',
-        'paid'            => 'Pago'
+        'paid'            => 'Pago',
+        'cleared'         => 'Compensado',
+        'partial'         => 'Parcial',
+        'refunded'        => 'Reembolso',
+        'cancelled' => 'Cancelado',
+
+        // Status de Entidade e Faturas (Novos)
+        'open'            => 'Aberto',
+        'closed'          => 'Fechado',
+        'active'          => 'Ativo',
+        'inactive'        => 'Inativo',
+
+        // Status de Assinatura e SaaS (Novos)
+        'trial'           => 'Período de Teste',
+        'late_payment'    => 'Pagamento em Atraso',
     ]
 
 ];

@@ -70,6 +70,20 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        Category::factory()->create([
+                    'name' => CategoryIconEnum::Transfer->getLabel(),
+                    'icon' => CategoryIconEnum::Transfer->value,
+                    'type' => 'transfer',
+                    'color' => '#1C624F'
+                ]);
+//
+//        Category::factory()->create([
+//                    'name' => CategoryIconEnum::TransferUp->getLabel(),
+//                    'icon' => CategoryIconEnum::TransferUp->getIcon(),
+//                    'type' => 'transfer',
+//                    'color' => '#4B8855'
+//                ]);
+
         // 5. MARCAS (Brands)
         $this->call([
             BrandsSeed::class,

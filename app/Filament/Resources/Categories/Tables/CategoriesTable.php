@@ -7,6 +7,7 @@ use App\Enums\CategoryTypeEnum;
 use App\Filament\Actions\SimpleActions;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
+use App\Filament\Resources\Categories\Schemas\CategoryTable;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Services\CategoryService;
@@ -65,7 +66,7 @@ class CategoriesTable
             ->filters([])
 
             ->recordUrl(null)
-            ->recordAction('edit-modal')
+            ->recordAction(fn (Category $record) => $record->family_id !== null ? 'edit-modal' : null) // Clique condicional
             ->recordActions([
                 SimpleActions::getViewWithEditAndDelete(
                     width         : Width::FiveExtraLarge,
@@ -99,74 +100,14 @@ class CategoriesTable
 
     public static function getListTableColumns(): array
     {
-        return [
-            IconColumn::make('ico')
-                ->label('')
-                    ->color(function (mixed $record) {
-                        return Color::hex($record->color->value);
-                    })
-                    ->getStateUsing(function (mixed $record) {
-                        return $record->icon;
-                    })
-                    ->extraAttributes(function (mixed $record): array {
-                        $colorSource = $record->color->value;
-
-                        $colorHex = Color::generatePalette($colorSource)[200];
-
-                        return [
-                            'style' => "background-color: {$colorHex}; display: inline-flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        padding: 6px 9px !important;
-                                        border-radius: 50%; /* Torna-o circular */
-                                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra suave */
-                                        flex-shrink: 0;
-                                        color: #ffffff;
-                                        width: 40px;
-                                        height: 40px;"
-                        ];
-                    }),
-            TextColumn::make('name')
-                ->label(''),
-            TextColumn::make('type')
-                ->label('')
-                ->badge(),
-            TextColumn::make('default_status')
-                ->label('')
-                ->badge()
-                ->size(TextSize::Small)
-                ->color('#ffffff')
-                ->getStateUsing(fn (Category $record): string => $record->family_id === null ? 'Padrão' : ''
-                )
-        ];
+        return CategoryTable::configure();
     }
 
     // Define the columns for the table when displayed in grid layout
     public static function getGridTableColumns(): array
     {
         return [
-            Stack::make([
-                ViewColumn::make('icon')
-                    ->label('')
-                    ->view('components.category-icon-view')
-                    ->viewData(fn (Category $category) => ['data' => $category])
-                    ->alignCenter(),
-                TextColumn::make('name')
-                    ->label('')
-                    ->alignCenter(),
-                TextColumn::make('type')
-                    ->label('')
-                    ->badge()
-                    ->alignCenter(),
-                TextColumn::make('default_status')
-                    ->label('')
-                    ->badge()
-                    ->size(TextSize::Small)
-                    ->alignCenter()
-                    ->color('#ffffff')
-                    ->getStateUsing(fn (Category $record): string => $record->family_id === null ? 'Padrão' : ''
-                    )
-            ])
+            Stack::make(CategoryTable::configure())
                 ->
                 space(3)->extraAttributes([
                     'class' => 'pb-2',

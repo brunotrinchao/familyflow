@@ -74,15 +74,8 @@ enum CategoryColorPaletteEnum: string implements HasLabel, HasColor
 
         // Itera sobre todos os membros do enum
         foreach (self::cases() as $case) {
-            // Usa o getLabel() como a chave do array (rótulo em português)
-            $label = $case->getLabel();
-
-            // Usa o valor de backing ($this->value) como o valor do array (HEX)
-            $hexValue = $case->value;
-
-            $colors[$hexValue] = $hexValue;
+            $colors[$case->value] = $case->value;
         }
-
         return $colors;
     }
 

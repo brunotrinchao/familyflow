@@ -20,7 +20,7 @@ use Filament\Support\Enums\TextSize;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 
-class TransactionInfolistModal
+class TransactionTransferInfolistModal
 {
     public static function configure(Schema $schema): Schema
     {
@@ -45,7 +45,7 @@ class TransactionInfolistModal
                     ])
                     ->columnSpanFull(),
                 Grid::make(3)
-                    ->visible(fn(Installment $record) => $record->transaction->installment_number > 1)
+                    ->visible(fn (Installment $record) => $record->transaction->installment_number > 1)
                     ->schema([
                         TextEntry::make('total_installment')
                             ->label('Parcelas')
@@ -88,23 +88,38 @@ class TransactionInfolistModal
                         'class' => 'p-2 rounded-lg'
                     ])
                     ->columnSpanFull(),
-                Grid::make(2)
+                Grid::make(1)
                     ->schema([
+                        TextEntry::make('account.name')
+                            ->label('De')
+                            ->hiddenLabel()
+                            ->visible(fn (Model $record) => $record->account_id)
+                            ->getStateUsing(function (mixed $record): HtmlString {
+                                $origin = $record->transaction?->account;
+                                $destine = $record->transaction?->destinationAccount;
+
+                                $isOut = $record->amount < 0;
+
+                                $firstAccount = $origin;
+                                $secondAccount = $destine;
+
+                                return new HtmlString(view('components.transfer-source-icon-view', [
+                                    'origin'  => $firstAccount,
+                                    'destine' => $secondAccount,
+                                    'isOut'   => $isOut,
+                                ])->render());
+                            })
+                            ->columnSpanFull()
+                    ])
+                    ->columnSpanFull(),
+                Grid::make(1)
+                    ->schema([
+
                         TextEntry::make('category')
                             ->label('Categoria')
                             ->getStateUsing(function (mixed $record): string {
                                 return $record->transaction->category->name;
                             }),
-                        TextEntry::make('account.name')
-                            ->label('Conta')
-                            ->visible(fn (Model $record) => $record->account_id),
-                        TextEntry::make('transaction.creditCard.name')
-                            ->label('Cartão')
-                            ->visible(fn (Model $record) => $record->transaction->credit_card_id),
-                    ])
-                    ->columnSpanFull(),
-                Grid::make(1)
-                    ->schema([
                         TextEntry::make('description')
                             ->label('Observação')
                             ->weight(FontWeight::Light)
@@ -114,13 +129,6 @@ class TransactionInfolistModal
 
                     ])
                     ->columnSpanFull(),
-                //                Grid::make(1)
-                //                    ->schema([
-                //                        TextEntry::make('due_date')
-                //                            ->label('Data')
-                //                            ->date('d/m/Y'),
-                //                    ])
-                //                    ->columnSpanFull(),
 
             ]);
     }

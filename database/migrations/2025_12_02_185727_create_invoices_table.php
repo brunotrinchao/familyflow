@@ -29,10 +29,20 @@ return new class extends Migration
             // Status do pagamento desta fatura (ex: PAID, PENDING, OVERDUE)
             $table->enum('status', array_column(\App\Enums\InvoiceStatusEnum::cases(), 'value'))->default(\App\Enums\InvoiceStatusEnum::PENDING);
 
-            // Índice para busca rápida
+            $table->timestamps();
+
+            // Unique constraint
             $table->unique(['credit_card_id', 'period_date']);
 
-            $table->timestamps();
+            // Índices
+            $table->index('family_id');
+            $table->index('credit_card_id');
+            $table->index('period_date');
+            $table->index('status');
+            $table->index(['family_id', 'period_date']);
+            $table->index(['family_id', 'status']);
+            $table->index(['credit_card_id', 'period_date']);
+            $table->index(['status', 'period_date']);
         });
     }
 

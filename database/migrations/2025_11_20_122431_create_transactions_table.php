@@ -35,6 +35,26 @@ return new class extends Migration
 
             $table->timestamps();
             $table->softDeletes(); // Recomendado para auditoria financeira
+
+            // Índices simples
+            $table->index('family_user_id');
+            $table->index('category_id');
+            $table->index('account_id');
+            $table->index('credit_card_id');
+            $table->index('destination_account_id');
+            $table->index('source');
+            $table->index('type');
+            $table->index('date');
+            $table->index('status');
+            $table->index('deleted_at');
+
+            // Índices compostos para queries comuns
+            $table->index(['family_user_id', 'date']);
+            $table->index(['family_user_id', 'type', 'date']);
+            $table->index(['family_user_id', 'status']);
+            $table->index(['category_id', 'date']);
+            $table->index(['account_id', 'date']);
+            $table->index(['credit_card_id', 'date']);
         });
     }
 

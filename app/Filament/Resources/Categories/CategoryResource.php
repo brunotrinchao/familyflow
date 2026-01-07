@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Enums\CategoryTypeEnum;
 use App\Enums\Icon\Ionicons;
 use App\Filament\Resources\Categories\Pages\ManageCategories;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
@@ -22,7 +23,7 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static string|BackedEnum|null $navigationIcon =  Iconoir::List;
+    protected static string|BackedEnum|null $navigationIcon = Iconoir::Okrs;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -41,12 +42,12 @@ class CategoryResource extends Resource
         return __('custom.title.categories');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('custom.title.settings');
-    }
+//    public static function getNavigationGroup(): string|UnitEnum|null
+//    {
+//        return __('custom.title.settings');
+//    }
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {
@@ -85,7 +86,16 @@ class CategoryResource extends Resource
     public static function getWidgets(): array
     {
         return [
-//            CategoryOverview::class,
+            //            CategoryOverview::class,
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->whereIn('type', [
+                CategoryTypeEnum::INCOME,
+                CategoryTypeEnum::EXPENSE,
+            ]);
     }
 }

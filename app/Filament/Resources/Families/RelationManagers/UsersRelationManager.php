@@ -75,7 +75,7 @@ class UsersRelationManager extends RelationManager
                             ->inline()
                             ->required()
                             ->options(UserStatusEnum::class)
-                            ->default(UserStatusEnum::ATI)
+                            ->default(UserStatusEnum::ACTIVE)
                             ->disabled(function ($get, $record, string $operation): bool {
 
                                 if ($operation === 'edit') {

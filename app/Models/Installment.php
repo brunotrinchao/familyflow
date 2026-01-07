@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\InstallmentStatusEnum;
 use App\Enums\TransactionStatusEnum;
+use App\Traits\HasFamily;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Installment extends Model
 {
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
-    use HasFactory;
+    use HasFactory, HasFamily;
 
     protected $fillable = [
         'number',

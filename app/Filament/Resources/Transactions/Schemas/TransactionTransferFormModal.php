@@ -13,6 +13,7 @@ use App\Models\Category;
 use App\Models\CreditCard;
 use App\Services\CategoryService;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -33,13 +34,13 @@ class TransactionTransferFormModal
             ->components([
                 Grid::make(2)
                     ->schema([
-                        Select::make('account_source')
+                        Select::make('source_custom')
                             ->label('Saiu da conta')
                             ->placeholder('Selecione')
                             ->options(function () {
                                 return Account::get()
                                     ->mapWithKeys(fn ($account) => [
-                                        "account_{$account->id}" => "Conta: {$account->account}",
+                                        "account__{$account->id}" => "{$account->name}",
                                     ])
                                     ->toArray();
                             })
@@ -50,12 +51,14 @@ class TransactionTransferFormModal
                             ->options(function () {
                                 return Account::get()
                                     ->mapWithKeys(fn ($account) => [
-                                        "account_{$account->id}" => "Conta: {$account->account}",
+                                        "account__{$account->id}" => "{$account->name}",
                                     ])
                                     ->toArray();
                             })
                             ->required(),
                     ]),
+                Hidden::make('title')
+                    ->default('Transfência entre contas'),
                 TextInput::make('description')
                     ->label('Descrição')
                     ->maxLength(255)

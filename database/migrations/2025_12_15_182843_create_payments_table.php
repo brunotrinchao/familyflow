@@ -38,6 +38,14 @@ return new class extends Migration
              $table->enum('status', array_column(\App\Enums\PaymentStatusEnum::cases(), 'value'))->default(\App\Enums\PaymentStatusEnum::POSTED);
 
             $table->timestamps();
+
+             // Índices
+            $table->index('invoice_id');
+            $table->index('transaction_id');
+            $table->index('paid_at');
+            $table->index('status');
+            $table->index(['invoice_id', 'status']);
+            $table->index(['paid_at', 'status']);
         });
     }
 

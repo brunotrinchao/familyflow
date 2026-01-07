@@ -13,6 +13,7 @@ class ManageAccounts extends ManageRecords
     use HasToggleableTable;
 
     protected static string $resource = AccountResource::class;
+    protected ?string $subheading = "Gerencie suas contas bancárias";
 
 //    protected function getHeaderActions(): array
 //    {

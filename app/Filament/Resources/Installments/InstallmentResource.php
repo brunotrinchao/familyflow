@@ -45,6 +45,8 @@ class InstallmentResource extends Resource
         return __('custom.title.releases');
     }
 
+    protected static ?int $navigationSort = 1;
+
 
     //    protected static bool $shouldRegisterNavigation = false;
 
