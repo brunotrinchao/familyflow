@@ -38,10 +38,10 @@ class CustomDataTable extends Component implements HasActions, HasSchemas, HasTa
                     ->searchable(),
                 TextColumn::make('account.name')
                     ->searchable(),
-                TextColumn::make('installment_number')
+                TextColumn::make('number')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('amount_cents')
+                TextColumn::make('amount')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('due_date')
@@ -92,7 +92,7 @@ class CustomDataTable extends Component implements HasActions, HasSchemas, HasTa
 
         // 1. Realiza a soma no banco de dados sobre o conjunto de dados FILTRADO
         // Nota: Assumimos que 'amount' está em centavos.
-        $totalAmountCents = $totalQuery->sum('amount_cents');
+        $totalAmount = $totalQuery->sum('amount');
         $this->totalAmount = $this->getRecords()->count();;
 
         // 2. Retorna um componente View que irá renderizar a linha

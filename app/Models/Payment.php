@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Account;
 
 class Payment extends Model
 {
@@ -19,6 +20,7 @@ class Payment extends Model
         'paid_at',
         'invoice_id',
         'transaction_id',
+        'account_id',
         'status',
     ];
 
@@ -35,5 +37,10 @@ class Payment extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 }

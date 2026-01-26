@@ -65,6 +65,9 @@ class ListTransactions extends ListRecords implements HasTable
         $endDate = $date->copy()->endOfMonth();
         $monthYearLabel = $date->translatedFormat('F Y');
         $familyId = Filament::getTenant()?->id;
+        if (!$familyId) {
+            return collect();
+        }
 
         $invoiceQuery = Invoice::query()
             ->where('family_id', $familyId)
@@ -88,11 +91,12 @@ class ListTransactions extends ListRecords implements HasTable
 
             // Propriedade injetada: Descrição da Fatura
             $invoice->description = "Fatura {$cardName} ({$monthYearLabel})";
-            $invoice->amount = $invoice->total_amount_cents;
+            $invoice->amount = $invoice->total_amount;
             $invoice->source = $invoice->creditCard->brand;
             $invoice->category = null;
             // Propriedade injetada: Flag de identificação
             $invoice->is_invoice = true;
+            $invoice->record_type = 'Fatura';
 
             return $invoice;
         });
@@ -119,16 +123,17 @@ class ListTransactions extends ListRecords implements HasTable
         });
         $installments = $installmentQuery->get()->map(function (Installment $installment) {
             $desc = $installment->transaction->description ?? 'Sem descrição';
-            $installNum = $installment->installment_number;
+            $installNum = $installment->number;
 
             // Formata a descrição: Descrição + (Parcela X), se houver
             $installmentText = ($installNum > 1) ? " (Parc. {$installNum})" : '';
 
             $installment->description = $desc . $installmentText;
-            $installment->amount = $installment->amount_cents;
+            $installment->amount = $installment->amount;
             $installment->source = $installment->account->brand;
             $installment->category = $installment->transaction->category;
             $installment->is_invoice = false;
+            $installment->record_type = 'Parcela';
 
             return $installment;
         });

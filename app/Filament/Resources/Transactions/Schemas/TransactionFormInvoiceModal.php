@@ -94,7 +94,7 @@ class TransactionFormInvoiceModal
 
 
                                 $amount = MaskHelper::covertStrToInt($get('amount'));
-                                $amountTotal = $record->total_amount_cents * -1;
+                                $amountTotal = $record->total_amount * -1;
 
                                 $calcTotal = $amountTotal - $amount;
 
@@ -109,7 +109,7 @@ class TransactionFormInvoiceModal
 
 
                                             $amount = MaskHelper::covertStrToInt($get('amount'));
-                                            $amountTotal = $record->total_amount_cents * -1;
+                                            $amountTotal = $record->total_amount * -1;
 
                                             $calcTotal = $amountTotal - $amount;
 

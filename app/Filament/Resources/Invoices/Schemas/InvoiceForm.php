@@ -16,13 +16,13 @@ class InvoiceForm
             ->components([
                 DatePicker::make('period_date')
                     ->required(),
-                TextInput::make('total_amount_cents')
+                TextInput::make('total_amount')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Select::make('status')
                     ->options(InvoiceStatusEnum::class)
-                    ->default('Pending')
+                    ->default(InvoiceStatusEnum::PENDING)
                     ->required(),
             ]);
     }

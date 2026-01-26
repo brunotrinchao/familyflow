@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Filament\Resources\Categories\CategoryResource;
 use App\Models\Family;
 use Filament\Actions\Action;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\ServiceProvider;
@@ -18,7 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        FilamentAsset::register([
+            Js::make('apexcharts', __DIR__ . '/../../resources/js/apexcharts.min.js'),
+        ], package: 'leandrocfe/filament-apex-charts');
     }
 
     /**
@@ -26,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-//        Cashier::useCustomerModel(Family::class);
+        //        Cashier::useCustomerModel(Family::class);
         CategoryResource::scopeToTenant(false);
     }
 }

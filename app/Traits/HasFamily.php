@@ -7,6 +7,7 @@ use App\Models\Family;
 use App\Models\FamilyUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use App\Services\TenantContext;
 
 trait HasFamily
 {
@@ -14,18 +15,19 @@ trait HasFamily
     {
 
         static::creating(function ($model) {
-            if (session()->has('active_family_user_id')) {
-                $familyUSerId = FamilyUser::find(session('active_family_user_id'))->family_id;
-                $model->family_id = $familyUSerId;
+            $familyId = app(TenantContext::class)->getFamilyId();
+            if ($familyId) {
+                $model->family_id = $familyId;
             }
         });
 
         static::addGlobalScope('family_user_scope', function (Builder $builder) {
-            if (session()->has('active_family_user_id')) {
-                // Busca o ID da família na sessão (idealmente use cache ou carregue uma vez)
-                $familyId = FamilyUser::find(session('active_family_user_id'))?->family_id;
+            $familyId = app(TenantContext::class)->getFamilyId();
+            if ($familyId) {
 
-                if (!$familyId) return;
+                if (!$familyId) {
+                    return;
+                }
 
                 // Verifica se o Model que está chamando o scope é o de Categoria
                 if ($builder->getModel() instanceof Category) {

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\FamilyUser;
+use App\Services\TenantContext;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -25,8 +26,7 @@ class SetFamilyContext
                 ->first();
 
             if ($familyUser) {
-                // Registra o ID do vínculo na sessão para o Global Scope do Trait
-                session(['active_family_user_id' => $familyUser->id]);
+                app(TenantContext::class)->setFromFamilyUser($familyUser);
             }
         }
 

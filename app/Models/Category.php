@@ -11,7 +11,6 @@ use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -44,8 +43,8 @@ class Category extends Model
         return $this->belongsTo(Family::class);
     }
 
-    public function transactions(): BelongsTo
+    public function transactions(): HasMany
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->hasMany(Transaction::class);
     }
 }

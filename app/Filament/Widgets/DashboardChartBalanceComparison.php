@@ -2,41 +2,44 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\TransactionTypeEnum;
 use App\Services\DashboardWidgetService;
+use Carbon\Carbon;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class DashboardWidgetDailyPerSource extends ApexChartWidget
+class DashboardChartBalanceComparison extends ApexChartWidget
 {
     use InteractsWithPageFilters;
 
     /**
      * ID único do gráfico.
      */
-    protected static ?string $chartId = 'dailyPerSourceChart';
+    protected static ?string $chartId = 'balanceComparisonChart';
 
     /**
      * Ordem de exibição.
      */
-    protected static ?int $sort = 8;
+    protected static ?int $sort = 7;
 
     /**
      * Largura das colunas.
      */
     protected int|string|array $columnSpan = [
         'default' => 12,
+        'md'      => 12,
         'lg'      => 8,
     ];
 
     /**
      * Altura do conteúdo.
      */
-    protected static ?int $contentHeight = 350;
+//    protected static ?int $contentHeight = 350;
 
     /**
      * Cabeçalho do widget.
      */
-//    protected static ?string $heading = 'Gastos Diários por Fonte';
+//    protected static ?string $heading = 'Receitas vs Despesas';
 
     /**
      * Lazy loading.
@@ -51,18 +54,35 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
     protected function getOptions(): array
     {
         $service = app(DashboardWidgetService::class);
-        $dailyData = $service->getDailySpendingBySource($this->filters ?? []);
+        $statsIncome = $service->getSummaryStats($this->filters ?? [], TransactionTypeEnum::INCOME);
+        $statsExpense = $service->getSummaryStats($this->filters ?? [], TransactionTypeEnum::EXPENSE);
 
-        if ($dailyData->isEmpty()) {
+        if ($statsIncome['total'] === 0 && $statsExpense['total'] === 0) {
             return $this->getEmptyChartOptions();
         }
 
-        // Preparar dados para o gráfico
-        $chartData = $this->prepareChartData($dailyData, $service);
+        $colors = $service->getColors();
+
+        $series = [
+                [
+                    'data' => [$statsIncome['total'] / 100],
+                    'name' => 'Receitas',
+                ],
+                [
+                    'data' => [$statsExpense['total'] / 100],
+                    'name' => 'Despesas',
+                ],
+            ];
+
+        $dueDate = !empty($this->filters['due_date'])
+            ? Carbon::parse($this->filters['due_date'])
+            : Carbon::now();
+
+
 
         return [
             'chart' => [
-                'type' => 'line',
+                'type' => 'bar',
                 'height' => 350,
                 'toolbar' => [
                     'show' => false,
@@ -75,16 +95,16 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
 //                        'pan' => false,
 //                        'reset' => true,
 //                    ],
-//                ],
+                ],
 //                'zoom' => [
 //                    'enabled' => true,
-                ],
+//                ],
             ],
-            'series' => $chartData['series'],
+            'series' => $series,
             'xaxis' => [
-                'categories' => $chartData['labels'],
+                'categories' => [$dueDate->format('F \d\e Y')],
                 'title' => [
-                    'text' => 'Dia do Mês',
+                    'text' => 'Mês e Ano',
                 ],
                 'labels' => [
                     'rotate' => -45,
@@ -100,7 +120,10 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
                 'curve' => 'smooth',
                 'width' => 2,
             ],
-            'colors' => $service->getColors(),
+            'colors' => [
+                $colors[2],
+                $colors[1],
+            ],
             'dataLabels' => [
                 'enabled' => false,
             ],
@@ -132,58 +155,12 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
                 'intersect' => false,
             ],
             'title'    => [
-                'text'  => 'Gastos Diários por Fonte',
+                'text'  => 'Receitas vs Despesas',
                 'style' => [
                     'fontSize'   => '20px',
                     'fontWeight' => 'bold'
                 ],
             ],
-        ];
-    }
-
-    /**
-     * Prepara os dados para o formato ApexCharts.
-     *
-     * @param \Illuminate\Support\Collection $dailyData
-     * @param DashboardWidgetService $service
-     * @return array
-     */
-    private function prepareChartData($dailyData, DashboardWidgetService $service): array
-    {
-        // Obter dias do mês (labels do eixo X)
-        $labels = $dailyData->keys()->sort()->values()->toArray();
-
-        // Extrair todas as fontes únicas (cartões/contas)
-        $sources = $dailyData
-            ->flatMap(fn($daySources) => $daySources->keys())
-            ->unique()
-            ->values();
-
-        // Construir séries (uma linha para cada fonte)
-        $series = [];
-
-        foreach ($sources as $sourceName) {
-            $data = [];
-
-            foreach ($labels as $day) {
-                $dayData = $dailyData->get($day);
-
-                if ($dayData && isset($dayData[$sourceName])) {
-                    $data[] = $dayData[$sourceName]['amount'] / 100; // Converter para reais
-                } else {
-                    $data[] = 0;
-                }
-            }
-
-            $series[] = [
-                'name' => $sourceName,
-                'data' => $data,
-            ];
-        }
-
-        return [
-            'series' => $series,
-            'labels' => array_map(fn($day) => (string)$day, $labels),
         ];
     }
 
@@ -196,26 +173,18 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
     {
         return [
             'chart' => [
-                'type' => 'line',
+                'type' => 'bar',
                 'height' => 350,
             ],
-            'series' => [
-                [
-                    'name' => 'Sem dados',
-                    'data' => array_fill(0, 30, 0),
-                ],
-            ],
-            'xaxis' => [
-                'categories' => range(1, 30),
-            ],
-            'yaxis' => [
-                'labels' => [
-                    'formatter' => "function(value) {
-                        return 'R$ ' + value.toFixed(0)
-                    }",
-                ],
-            ],
+            'series' => [1],
+            'labels' => ['Sem dados'],
             'colors' => ['#e5e7eb'],
+            'legend' => [
+                'show' => false,
+            ],
+            'dataLabels' => [
+                'enabled' => false,
+            ],
         ];
     }
 
@@ -231,6 +200,17 @@ class DashboardWidgetDailyPerSource extends ApexChartWidget
      */
     protected function getDescription(): ?string
     {
-        return 'Acompanhe seus gastos diários separados por cartão ou conta';
+        $service = app(DashboardWidgetService::class);
+        $stats = $service->getSummaryStats($this->filters ?? []);
+
+        $balance = $stats['balance'];
+
+        if ($balance > 0) {
+            return "Saldo positivo: {$stats['balance_formatted']} 📈";
+        } elseif ($balance < 0) {
+            return "Atenção! Saldo negativo: {$stats['balance_formatted']} 📉";
+        }
+
+        return 'Saldo zerado';
     }
 }

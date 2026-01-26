@@ -167,7 +167,6 @@ class InstallmentFormModal
                     ]),
                 Textarea::make('transaction.description')
                     ->label('Observação')
-                    ->required()
                     ->columnSpanFull()
                     ->disabled(),
                 Section::make('')

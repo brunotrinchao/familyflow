@@ -12,26 +12,23 @@ class CreditCardInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('family_id')
+                TextEntry::make('family_user_id')
                     ->numeric(),
                 TextEntry::make('name'),
-                TextEntry::make('bank')
-                    ->badge(),
+                TextEntry::make('brand.name')
+                    ->label('Bandeira'),
                 TextEntry::make('last_four_digits')
                     ->placeholder('-'),
                 TextEntry::make('closing_day')
                     ->numeric(),
                 TextEntry::make('due_day')
                     ->numeric(),
-                TextEntry::make('credit_limit')
+                TextEntry::make('limit')
                     ->numeric(),
-                TextEntry::make('credit_used')
+                TextEntry::make('used')
                     ->numeric(),
                 IconEntry::make('status')
                     ->boolean(),
-                TextEntry::make('card_holder_user_id')
-                    ->numeric()
-                    ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),

@@ -2,71 +2,101 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\InstallmentStatusEnum;
-use App\Enums\TransactionTypeEnum;
-use App\Helpers\MaskHelper;
-use App\Models\Installment;
 use App\Services\DashboardWidgetService;
-use Carbon\Carbon;
-use Filament\Support\Colors\Color;
-use Filament\Support\RawJs;
-use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Support\Collection;
+use Leandrocfe\FilamentApexCharts\Widgets\ApexChartWidget;
 
-class DashboardChartInvoice extends ChartWidget
+class DashboardChartInvoice extends ApexChartWidget
 {
     use InteractsWithPageFilters;
 
-    private Collection $dataInvoice;
+    /**
+     * ID único do gráfico.
+     */
+    protected static ?string $chartId = 'invoiceChart';
 
-    private string $title = "Faturas";
+    /**
+     * Ordem de exibição.
+     */
+    protected static ?int $sort = 4;
 
-
+    /**
+     * Largura das colunas.
+     */
     protected int|string|array $columnSpan = [
         'default' => 12,
-        'lg'      => 4
+        'md'      => 6,
+        'lg'      => 4,
     ];
 
-    protected static bool $isLazy = true;
+    /**
+     * Altura do conteúdo.
+     */
+    //    protected static ?int $contentHeight = 350;
 
-//    protected ?string $maxHeight = '400px';
+    /**
+     * Cabeçalho do widget.
+     */
+    //    protected static ?string $heading = 'Faturas por Cartão';
 
-    protected function getData(): array
+    /**
+     * Lazy loading.
+     */
+    protected static bool $deferLoading = true;
+
+    /**
+     * Configurações do gráfico ApexCharts.
+     *
+     * @return array
+     */
+    protected function getOptions(): array
     {
         $service = app(DashboardWidgetService::class);
-        $this->dataInvoice = $service->getDataInvoice($this->filters ?? []);
+        $invoiceData = $service->getDataInvoice($this->filters ?? []);
+
+        if ($invoiceData->isEmpty()) {
+            return $this->getEmptyChartOptions();
+        }
 
         $labels = [];
         $data = [];
-        foreach ($this->dataInvoice as $creditCardName => $items) {
+        $total = 0;
+        foreach ($invoiceData as $creditCardName => $details) {
             $labels[] = $creditCardName;
-            $data[] = $items->sum('total_amount');
+            $data[] = $details['total'] / 100; // Converter para reais
+            $total += $details['total'];
         }
 
-        $fixedColors = $service->colors;
+        return $service->getScriptDonutPie(totalItems: $total, title: 'Faturas', subtitle: 'faturas no periodo', series: $data, labels: $labels, data: $invoiceData->toArray());
+    }
 
+    /**
+     * Retorna opções para gráfico vazio.
+     *
+     * @return array
+     */
+    private function getEmptyChartOptions(): array
+    {
         return [
-            'datasets' => [
-                [
-                    'label'           => 'Faturas',
-                    'data'            => $data,
-                    'backgroundColor' => $fixedColors,
-                    'hoverOffset'     => 4
-                ],
+            'chart'      => [
+                'type'   => 'donut',
+                'height' => 300,
             ],
-            'labels'   => $labels
+            'series'     => [1],
+            'labels'     => ['Sem dados'],
+            'colors'     => ['#e5e7eb'],
+            'legend'     => [
+                'show' => false,
+            ],
+            'dataLabels' => [
+                'enabled' => false,
+            ],
         ];
     }
 
-    protected function getType(): string
+    protected function extraJsOptions(): ?\Filament\Support\RawJs
     {
-        return 'pie';
+        return app(DashboardWidgetService::class)->getExtraScriptStats();
     }
 
-    protected function getOptions(): RawJs
-    {
-        return app(DashboardWidgetService::class)->getScriptDonnet($this->title);
-    }
 }

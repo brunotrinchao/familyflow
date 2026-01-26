@@ -14,6 +14,7 @@ use App\Helpers\MaskHelper;
 use App\Models\Category;
 use App\Models\Installment;
 use App\Models\Invoice;
+use App\Services\CategoryService;
 use Coolsam\Flatpickr\Forms\Components\Flatpickr;
 use Filafly\Icons\Iconoir\Enums\Iconoir;
 use Filament\Actions\Action;
@@ -68,6 +69,10 @@ class TransactionsTable
                 TextColumn::make('description')
                     ->label('Descrição')
                     ->limit(30),
+                TextColumn::make('record_type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->color(fn (mixed $record) => ($record->is_invoice ?? false) ? 'warning' : 'info'),
                 TextColumn::make('source')
                     ->label('Fonte')
                     ->getStateUsing(function (mixed $record): HtmlString {
@@ -87,7 +92,11 @@ class TransactionsTable
                     ->label('Valor')
                     ->money('BRL')
                     ->getStateUsing(function (mixed $record): string {
-                        $calc = $record->type == TransactionTypeEnum::EXPENSE ? -1 : 1;
+                        $calc = 1;
+                        if (isset($record->type) && $record->type instanceof TransactionTypeEnum) {
+                            $calc = $record->type === TransactionTypeEnum::EXPENSE ? -1 : 1;
+                        }
+
                         return MaskHelper::covertIntToReal($record->amount * $calc);
                     }),
             ])
@@ -129,7 +138,7 @@ class TransactionsTable
                             Select::make('category')
                                 ->label('Categoria')
                                 ->placeholder('Selecione')
-                                ->options(fn () => Category::get()->groupBy('type')->map->pluck('name', 'id')),
+                                ->options(fn () => app(CategoryService::class)->getGroupedOptions()),
                         ])
                     ])
                     ->modifyQueryUsing(function (Builder $query, array $data) {

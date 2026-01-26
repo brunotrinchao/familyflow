@@ -32,7 +32,7 @@ class Invoice extends Model
     {
         return [
             'period_date'        => 'date',
-            'total_amount_cents' => 'integer',
+            'total_amount'       => 'integer',
             'status'             => InvoiceStatusEnum::class,
         ];
     }

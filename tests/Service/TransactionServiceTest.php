@@ -163,4 +163,43 @@ class TransactionServiceTest extends TestCase
             'credit_card_id' => $card->id,
         ]);
     }
+
+    public function test_distributes_remainder_across_installments()
+    {
+        $familyUser = FamilyUser::factory()->create();
+        $brand = Brand::factory()->create();
+
+        $account = Account::factory()->create([
+            'balance'        => 2000,
+            'brand_id'       => $brand->id,
+            'family_user_id' => $familyUser->id,
+        ]);
+
+        $card = CreditCard::factory()->create([
+            'brand_id'       => $brand->id,
+            'family_user_id' => $familyUser->id,
+            'account_id'     => $account->id,
+        ]);
+
+        $category = Category::factory()->create(['type' => TransactionTypeEnum::EXPENSE]);
+
+        $this->service->create([
+            'title'              => 'Compra parcelada',
+            'amount'             => 1000,
+            'type'               => TransactionTypeEnum::EXPENSE,
+            'source'             => TransactionSourceEnum::CREDIT_CARD,
+            'status'             => TransactionStatusEnum::POSTED,
+            'credit_card_id'     => $card->id,
+            'category_id'        => $category->id,
+            'installment_number' => 3,
+            'family_user_id'     => $card->family_user_id,
+            'date'               => Carbon::now()->format('Y-m-d'),
+        ]);
+
+        $amounts = Installment::query()->pluck('amount')->sort()->values()->all();
+
+        $this->assertCount(3, $amounts);
+        $this->assertEquals(-1000, array_sum($amounts));
+        $this->assertEquals(-334, $amounts[0]);
+    }
 }

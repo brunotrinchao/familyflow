@@ -8,6 +8,7 @@ use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Helpers\MaskHelper;
 use App\Models\Account;
 use App\Models\Category;
+use App\Services\CategoryService;
 use Carbon\Carbon;
 use Filafly\Icons\Iconoir\Enums\Iconoir;
 use Filament\Forms\Components\DatePicker;
@@ -80,7 +81,7 @@ class InvoiceFormModal
                             }),
                         Select::make('category_id')
                             ->label('Categoria')
-                            ->options(fn () => Category::where('type', $type)->pluck('name', 'id')->toArray())
+                            ->options(fn () => app(CategoryService::class)->getOptionsForType($type))
                             ->placeholder('Selecione')
                             ->getOptionLabelFromRecordUsing(fn (Category $record) => $record->name)
                             ->required()
@@ -94,7 +95,7 @@ class InvoiceFormModal
 
 
                                 $amount = MaskHelper::covertStrToInt($get('amount'));
-                                $amountTotal = $record->total_amount_cents * -1;
+                                $amountTotal = $record->total_amount * -1;
 
                                 $calcTotal = $amountTotal - $amount;
 

@@ -13,7 +13,6 @@ use App\Filament\Resources\Transactions\Schemas\TransactionForm;
 use App\Filament\Resources\Transactions\Schemas\TransactionInfolist;
 use App\Filament\Resources\Transactions\Tables\TransactionsTable;
 use App\Helpers\MaskHelper;
-use App\Models\Installment;
 use App\Models\Transaction;
 use BackedEnum;
 use Filafly\Icons\Iconoir\Enums\Iconoir;
@@ -31,7 +30,7 @@ use UnitEnum;
 
 class TransactionResource extends Resource
 {
-    protected static ?string $model = Installment::class;
+    protected static ?string $model = Transaction::class;
 
     protected static string|BackedEnum|null $navigationIcon = Iconoir::DataTransferWarning;
 
@@ -42,7 +41,7 @@ class TransactionResource extends Resource
         return [
             'amount',
             'description',
-            'user.name',
+            'familyUser.user.name',
             'category.name',
             'source',
             'type',
@@ -115,15 +114,22 @@ class TransactionResource extends Resource
         ];
     }
 
-    public static function canView(?Model $record): bool // 🚨 CORREÇÃO: Adicione o '?' para tornar o Model opcional
+    public static function canView(?Model $record): bool
     {
-        // Se o record for nulo (falha no binding), negamos a visualização para segurança.
         if (is_null($record)) {
             return false;
         }
 
-        // A lógica de verificação
-        return $record->family_id === Filament::getTenant()->id;
+        $tenantId = Filament::getTenant()?->id;
+        if (!$tenantId) {
+            return false;
+        }
+
+        if (isset($record->family_id)) {
+            return $record->family_id === $tenantId;
+        }
+
+        return $record->familyUser?->family_id === $tenantId;
     }
 
 }

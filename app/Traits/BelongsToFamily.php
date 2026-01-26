@@ -3,20 +3,23 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use App\Services\TenantContext;
 
 trait BelongsToFamily
 {
     protected static function bootBelongsToFamily()
     {
         static::creating(function ($model) {
-            if (session()->has('active_family_user_id')) {
-                $model->family_user_id = session('active_family_user_id');
+            $familyUserId = app(TenantContext::class)->getFamilyUserId();
+            if ($familyUserId) {
+                $model->family_user_id = $familyUserId;
             }
         });
 
         static::addGlobalScope('family_user_scope', function (Builder $builder) {
-            if (session()->has('active_family_user_id')) {
-                $builder->where('family_user_id', session('active_family_user_id'));
+            $familyUserId = app(TenantContext::class)->getFamilyUserId();
+            if ($familyUserId) {
+                $builder->where('family_user_id', $familyUserId);
             }
         });
     }

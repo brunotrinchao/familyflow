@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Filafly\Icons\Iconoir\Enums\Iconoir;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Alignment;
@@ -63,7 +64,7 @@ class ViewInvoice extends ViewRecord
         return new HtmlString("
         <div class='flex items-center flex-wrap gap-3'>
             {$sourceHtml}
-            <div class='inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold' style='background-color: {$color[400]}; color: {$color[700]}'>
+            <div class='inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold' style='background-color: {$color}; color: {$color}'>
                 " . Blade::render("<x-filament::icon icon='{$iconName}' class='h-4 w-4' />") . "
                 <span>{$actualLabel}</span>
             </div>

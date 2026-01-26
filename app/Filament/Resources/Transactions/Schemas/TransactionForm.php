@@ -42,7 +42,7 @@ class TransactionForm
                     ->default(now()),
                 Select::make('category_id')
                     ->label('Categoria')
-                    ->options(fn () => Category::get()->groupBy('type')->map->pluck('name', 'id'))
+                    ->options(fn () => app(CategoryService::class)->getGroupedOptions())
                     ->createOptionForm(fn (Schema $schema) => CategoryForm::configure($schema))
                     ->createOptionUsing(function (array $data): int {
                         $category = Category::create($data);

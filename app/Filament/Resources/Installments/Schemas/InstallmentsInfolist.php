@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Installments\Schemas;
 
-use App\Enums\TransactionStatusEnum;
+use App\Enums\InstallmentStatusEnum;
 use App\Helpers\MaskHelper;
 use App\Models\Installment;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -37,18 +37,18 @@ class InstallmentsInfolist
                     ->columnSpanFull(),
                 Grid::make(1)
                     ->schema([
-                        TextEntry::make('amount_cents')
+                        TextEntry::make('amount')
                             ->label('Valor')
                             ->hiddenLabel()
                             ->color(function (Model $record) {
-                                return $record->amount_cents > 0 ? Color::Green : Color::Red;
+                                return $record->amount > 0 ? Color::Green : Color::Red;
                             })
                             ->weight(FontWeight::Bold)
                             ->money('BRL')
                             ->alignCenter()
                             ->extraAttributes(['style' => 'font-size: xx-large'])
                             ->getStateUsing(function (mixed $record): string {
-                                return MaskHelper::covertIntToReal($record->amount_cents);
+                                return MaskHelper::covertIntToReal($record->amount);
                             })
                             ->size(TextSize::Large)
                     ])
@@ -72,7 +72,7 @@ class InstallmentsInfolist
                         TextEntry::make('installment_posted')
                             ->label('Parcelas Pagas')
                             ->getStateUsing(fn (Model $record) => Installment::where('invoice_id', $record->invoice_id)
-                                ->where('status', TransactionStatusEnum::PAID)
+                                ->where('status', InstallmentStatusEnum::PAID)
                                 ->count()
                             )
                             ->suffix(fn (Model $record) => ' de ' . $record->transaction->installment_number)

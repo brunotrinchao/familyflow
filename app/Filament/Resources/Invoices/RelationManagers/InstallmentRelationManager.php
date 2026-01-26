@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Invoices\RelationManagers;
 
 use App\Enums\InstallmentStatusEnum;
 use App\Enums\TransactionSourceEnum;
-use App\Enums\TransactionStatusEnum;
+use App\Enums\InvoiceStatusEnum;
 use App\Enums\TransactionTypeEnum;
 use App\Filament\Actions\InstallmentActions;
 use App\Filament\Resources\Installments\Schemas\InstallmentFormModal;
@@ -137,7 +137,7 @@ class InstallmentRelationManager extends RelationManager
                 InstallmentActions::makeViewInstallment()
             ])
             ->checkIfRecordIsSelectableUsing(
-                fn (Model $record): bool => $record->invoice->status !== TransactionStatusEnum::PAID,
+                fn (Model $record): bool => $record->invoice->status !== InvoiceStatusEnum::PAID,
             );
     }
 }

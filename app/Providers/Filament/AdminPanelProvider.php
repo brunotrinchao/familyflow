@@ -44,6 +44,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Leandrocfe\FilamentApexCharts\FilamentApexChartsPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -176,6 +177,7 @@ class AdminPanelProvider extends PanelProvider
                         directory: 'avatars',
                         rules    : 'mimes:jpeg,png|max:1024'
                     ),
+                FilamentApexChartsPlugin::make()
             ]);
     }
 }
